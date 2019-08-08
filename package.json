@@ -2,6 +2,10 @@
   "name": "klingonfiles",
   "version": "1.0.0",
   "main": "index.js",
+  "author": {
+    "name": "Matheus Neves",
+    "email": "matheusneves1989@gmail.com"
+  },
   "scripts": {
     "klingon": "node src/index.js"
   },
