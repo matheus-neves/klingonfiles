@@ -1,0 +1,19 @@
+{
+  "name": "klingonfiles",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "klingon": "node src/index.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "puppeteer": "^1.19.0",
+    "puppeteer-cluster": "^0.16.0",
+    "request": "^2.88.0"
+  }
+}
