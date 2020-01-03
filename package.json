@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "nodemon src/index.js",
-    "klingon": "node src/build.js"
+    "start": "node src/build.js"
   },
   "license": "MIT",
   "devDependencies": {
