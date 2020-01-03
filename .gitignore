@@ -9,7 +9,10 @@ lerna-debug.log*
 /src/build.js
 test.js
 temp/**
-.DS_Store*
+
+# OS generated files
+.DS_Store
+.DS_Store?
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
