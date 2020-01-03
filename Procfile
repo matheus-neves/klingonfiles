@@ -1,1 +1,1 @@
-web: npm klingon
+web: npm start
