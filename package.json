@@ -15,11 +15,12 @@
     "nodemon": "^1.19.1"
   },
   "dependencies": {
+    "archiver": "^3.1.1",
     "axios": "^0.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "puppeteer": "^1.19.0",
     "puppeteer-cluster": "^0.16.0",
-    "zip-lib": "^0.5.0"
+    "request": "^2.88.0"
   }
 }
