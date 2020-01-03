@@ -20,10 +20,6 @@ const runPuppeteer = async (urls, auth = null) => {
     maxConcurrency: 2,
   });
 
-  cluster.on('taskerror', (err, data) => {
-    console.log(`Error crawling ${data}: ${err.message}`);
-  });
-
   await cluster.task(async ({ page, data: url }) => {
 
     url = new URL(url);
@@ -47,10 +43,10 @@ const runPuppeteer = async (urls, auth = null) => {
 
           let arrayFonts = [
             `${dir}/${name}.woff`,
-            `${dir}/${name}.woff2`,
-            `${dir}/${name}.svg`,
-            `${dir}/${name}.ttf`,
-            `${dir}/${name}.eot`,
+            `${dir}/${name}.woff2#force`,
+            `${dir}/${name}.svg#force`,
+            `${dir}/${name}.ttf#force`,
+            `${dir}/${name}.eot#force`,
           ]
 
           reqUrls.push(...arrayFonts);
@@ -83,40 +79,71 @@ const runPuppeteer = async (urls, auth = null) => {
  * @param {Object} [auth]
  * @param {String} auth.username
  * @param {String} auth.password
+ * @returns {Promise} Returns a Promise writeStream
  */
-const generateBuild = async (url, time, auth = null) => {
-  
-  try {
+const generateBuild = async (networkRequests, time, auth = null) => {
+
+  console.log('init generateBuild');
+
+  let writer = '';
+  let forcedLog = [];
+  let logger = [];
+
+  const pathBuild = path.resolve(__dirname, '..', '..', 'temp', `build_${time}`);
+
+  for (let url of networkRequests) {
 
     url = new URL(url);
 
     pathname = path.parse(url.pathname).dir.replace(/^\.*\/|\/?[^\/]+\.[a-z]|\/$/g, '');
 
-    await fs.mkdirSync(path.resolve(__dirname, '..', '..', 'temp', `build_${time}`, pathname), { recursive: true });
+    await fs.mkdirSync(path.resolve(pathBuild, pathname), { recursive: true });
 
     let res = await axios(url.href, {
       auth,
-      responseType: 'stream'
+      responseType: 'stream',
+      validateStatus: (status) => {
+
+        let href = url.href;
+
+        if (status === 200 && url.hash === '#force') {
+
+          forcedLog.push({
+            status,
+            url: href.replace('#force', '')
+          });
+        }
+
+        if (url.hash !== '#force') {
+          logger.push({ status, url: url.href })
+        }
+
+        return status < 500; // Reject only if the status code is greater than or equal to 500
+      }
     });
 
     if (res.status == 200) {
-      res.data.pipe(await fs.createWriteStream(path.resolve(__dirname, '..', '..', 'temp', `build_${time}`, url.pathname.substring(1))));
+
+      writer = await fs.createWriteStream(path.resolve(pathBuild, url.pathname.substring(1)));
+      res.data.pipe(writer);
+
+      console.log(path.resolve(pathBuild, url.pathname.substring(1)));
     }
 
-  } catch (error) {
-
-    if(error.response.status === 404) {
-      console.log(url.href);
-      console.log(error.message);
-    }  
-
-    
   }
+
+  logger = [...logger, ...forcedLog];
+
+  return new Promise((resolve, reject) => {
+    writer.on('finish', () => writer.close(resolve(logger)))
+    writer.on('error', error => {
+      reject(error)
+    })
+  });
+
 }
 
 module.exports = {
   runPuppeteer,
   generateBuild
 }
-
-
