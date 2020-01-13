@@ -16,6 +16,10 @@ const runPuppeteer = async (urls, auth = null) => {
   const reqUrls = [];
 
   const cluster = await Cluster.launch({
+    puppeteerOptions: {
+      headless: true,
+      args: ['--no-sandbox']
+    },
     concurrency: Cluster.CONCURRENCY_CONTEXT,
     maxConcurrency: 2,
   });
@@ -126,8 +130,6 @@ const generateBuild = async (networkRequests, time, auth = null) => {
 
       writer = await fs.createWriteStream(path.resolve(pathBuild, url.pathname.substring(1)));
       res.data.pipe(writer);
-
-      console.log(path.resolve(pathBuild, url.pathname.substring(1)));
     }
 
   }
